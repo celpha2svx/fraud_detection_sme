@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fraud Detection - Nigerian SME Security</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 16px;
+        }
+
+        .form-section {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .result {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 12px;
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .result.low {
+            background: #d4edda;
+            border-left: 5px solid #28a745;
+        }
+
+        .result.medium {
+            background: #fff3cd;
+            border-left: 5px solid #ffc107;
+        }
+
+        .result.high {
+            background: #f8d7da;
+            border-left: 5px solid #dc3545;
+        }
+
+        .result-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .result-details {
+            font-size: 16px;
+            line-height: 1.8;
+        }
+
+        .metric {
+            display: inline-block;
+            background: rgba(0,0,0,0.05);
+            padding: 5px 12px;
+            border-radius: 20px;
+            margin-right: 10px;
+            margin-top: 10px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+            display: none;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛡 Fraud Detection System</h1>
+            <p>Protect your business from fraudulent transactions</p>
+        </div>
+
+        <div class="form-section">
+            <form id="fraudForm">
+                <div class="form-group">
+                    <label for="amount">Transaction Amount (₦)</label>
+                    <input type="number" id="amount" required min="1" step="0.01" placeholder="e.g., 15000">
+                </div>
+
+                <div class="form-group">
+                    <label for="product">Product Type</label>
+                    <select id="product" required>
+                        <option value="">Select product type</option>
+                        <option value="W">W - Services/Utilities</option>
+                        <option value="H">H - Electronics</option>
+                        <option value="R">R - Retail Goods</option>
+                        <option value="S">S - Software/Digital</option>
+                        <option value="C">C - Gift Cards/Credits</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="cardType">Payment Method</label>
+                    <select id="cardType" required>
+                        <option value="debit">Debit Card</option>
+                        <option value="credit">Credit Card</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Customer Email Domain (optional)</label>
+                    <input type="text" id="email" placeholder="e.g., gmail.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="hour">Hour of Transaction (0-23)</label>
+                    <input type="number" id="hour" required min="0" max="23" value="14">
+                </div>
+
+                <div class="form-group">
+                    <label for="day">Day of Week</label>
+                    <select id="day" required>
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2" selected>Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn" id="submitBtn">Check Transaction</button>
+            </form>
+
+            <div class="spinner" id="spinner"></div>
+
+            <div class="result" id="result">
+                <div class="result-title" id="resultTitle"></div>
+                <div class="result-details" id="resultDetails"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('fraudForm');
+        const spinner = document.getElementById('spinner');
+        const result = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Show loading
+            spinner.style.display = 'block';
+            result.classList.remove('show');
+            submitBtn.disabled = true;
+
+            // Collect form data
+            const data = {
+                transaction_amount: parseFloat(document.getElementById('amount').value),
+                product_type: document.getElementById('product').value,
+                card_type: document.getElementById('cardType').value,
+                email_domain: document.getElementById('email').value || null,
+                hour: parseInt(document.getElementById('hour').value),
+                day_of_week: parseInt(document.getElementById('day').value)
+            };
+
+            try {
+                // Call API
+                const response = await fetch('http://127.0.0.1:8000/predict', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) {
+                    throw new Error('API request failed');
+                }
+
+                const prediction = await response.json();
+
+                // Display result
+                displayResult(prediction);
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                spinner.style.display = 'none';
+                submitBtn.disabled = false;
+            }
+        });
+
+        function displayResult(pred) {
+            const resultTitle = document.getElementById('resultTitle');
+            const resultDetails = document.getElementById('resultDetails');
+
+            // Set risk level styling
+            result.className = 'result show ' + pred.risk_level.toLowerCase();
+
+            // Set title
+            const icons = { LOW: '✅', MEDIUM: '⚠', HIGH: '🚨' };
+            resultTitle.textContent = `${icons[pred.risk_level]} ${pred.risk_level} RISK`;
+
+            // Set details
+              resultDetails.innerHTML = `
+                <p><strong>${pred.message}</strong></p>
+                <div style="margin-top: 15px;">
+                    <span class="metric">Fraud Probability: ${(pred.fraud_probability * 100).toFixed(2)}%</span>
+                    <span class="metric">Confidence: ${(pred.confidence * 100).toFixed(1)}%</span>
+                    <span class="metric">Decision: ${pred.is_fraud ? 'BLOCK' : 'ALLOW'}</span>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>
